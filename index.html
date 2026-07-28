@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Laporan Absensi Guru | Created by: Solo Operator™</title>
+    <title>Aplikasi Laporan Absensi Digital | Developed by: Jr-Asngadzt™</title>
     <!-- Favicon Default -->
     <link id="favicon" rel="icon" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3e%3ccircle cx='12' cy='12' r='12' fill='%2315803d'/%3e%3cpath d='M12 12h.01M8 12h.01M16 12h.01M5 12a7 7 0 0 1 7-7h0a7 7 0 0 1 7 7v3.5a3.5 3.5 0 0 1-3.5 3.5h-7A3.5 3.5 0 0 1 5 15.5V12z' stroke='white' stroke-width='2' fill='none'/%3e%3c/svg%3e">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -393,10 +393,10 @@
     <div id="app-container" class="hidden h-screen flex overflow-hidden bg-[#f4f7f5]">
         
         <!-- Sidebar Overlay untuk klik luar area di Mobile -->
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-[15] hidden md:hidden backdrop-blur-sm transition-opacity" onclick="toggleSidebar()"></div>
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden backdrop-blur-sm transition-opacity" onclick="toggleSidebar()"></div>
 
         <!-- Sidebar -->
-        <aside class="w-64 bg-green-900 text-white flex flex-col shadow-2xl flex-shrink-0 transition-all duration-300 z-20 absolute md:relative h-full -translate-x-full md:translate-x-0" id="sidebar">
+        <aside class="w-64 bg-green-900 text-white flex flex-col shadow-2xl flex-shrink-0 transition-all duration-300 z-40 fixed md:relative inset-y-0 left-0 md:inset-auto h-full -translate-x-full md:translate-x-0" id="sidebar">
             <div class="p-4 flex items-center justify-between border-b border-green-800 sidebar-header">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-white rounded-lg flex-shrink-0 flex items-center justify-center text-green-950 shadow-inner">
@@ -851,6 +851,37 @@
                             </button>
                         </div>
                     </form>
+
+                    <!-- TAMBAHAN: BAGIAN JADWAL KHUSUS (RENTANG TANGGAL) -->
+                    <div class="mt-8 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">Jadwal Khusus (Bulan/Rentang Tanggal)</h3>
+                            <p class="text-xs text-gray-600 mt-1">Atur jam masuk dan pulang khusus yang menimpa jadwal default di atas pada tanggal tertentu (Misal: Bulan Ramadhan).</p>
+                        </div>
+                        <button onclick="openModalJadwalKhusus()" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition shadow-md flex items-center gap-2">
+                            <i class="bi bi-calendar-range"></i> Tambah Jadwal Khusus
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-t-8 border-purple-600 mobile-transparent-wrapper">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-600 mobile-table">
+                                <thead class="bg-purple-50 text-purple-900 uppercase border-b text-[11px] font-bold tracking-widest">
+                                    <tr>
+                                        <th class="px-6 py-4">Keterangan</th>
+                                        <th class="px-6 py-4 w-48 text-center">Rentang Tanggal</th>
+                                        <th class="px-6 py-4 w-32 text-center">Jam Masuk</th>
+                                        <th class="px-6 py-4 w-32 text-center">Jam Pulang</th>
+                                        <th class="px-6 py-4 w-32 text-center">Toleransi</th>
+                                        <th class="px-6 py-4 text-center w-32">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-jadwal-khusus-body" class="divide-y divide-gray-100">
+                                    <!-- Terisi via Javascript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </section>
 
                 <!-- PAGE: LIBUR TAMBAHAN -->
@@ -1268,6 +1299,61 @@
         </div>
     </div>
 
+    <!-- TAMBAHAN: MODAL JADWAL KHUSUS -->
+    <div id="modal-jadwal-khusus" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-lg transform transition-all">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2" id="modal-jk-title">Tambah Jadwal Khusus</h3>
+            <form id="form-jadwal-khusus" class="space-y-4">
+                <input type="hidden" id="jk-id">
+                
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nama / Keterangan Event</label>
+                    <input type="text" id="jk-ket" class="w-full px-3 py-2 border rounded-lg focus:ring-purple-600 outline-none" placeholder="Contoh: Jadwal Bulan Ramadhan" required>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Target Guru</label>
+                    <select id="jk-target" class="w-full px-3 py-2 border rounded-lg focus:ring-purple-600 outline-none bg-white font-semibold text-gray-700">
+                        <option value="semua">Semua Guru (TPG & Honorer)</option>
+                        <option value="tetap">Khusus Guru TPG (PNS/GTY)</option>
+                        <option value="honorer">Khusus Guru Honorer (GTT)</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-xl border">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Mulai Tanggal</label>
+                        <input type="date" id="jk-tanggal-mulai" class="w-full px-3 py-2 border rounded-lg focus:ring-purple-600 outline-none font-bold text-purple-800 bg-white" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Sampai Tanggal</label>
+                        <input type="date" id="jk-tanggal-akhir" class="w-full px-3 py-2 border rounded-lg focus:ring-purple-600 outline-none font-bold text-purple-800 bg-white" required>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 text-center">Jam Masuk</label>
+                        <input type="text" id="jk-jam-masuk" readonly onclick="openTimePicker('jk-jam-masuk')" class="w-full px-3 py-2 border rounded-lg outline-none cursor-pointer bg-white text-center font-bold text-green-700 shadow-sm focus:ring-purple-600" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 text-center">Jam Pulang</label>
+                        <input type="text" id="jk-jam-pulang" readonly onclick="openTimePicker('jk-jam-pulang')" class="w-full px-3 py-2 border rounded-lg outline-none cursor-pointer bg-white text-center font-bold text-red-700 shadow-sm focus:ring-purple-600" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1 text-center">Toleransi (Mnt)</label>
+                        <input type="number" id="jk-toleransi" min="0" class="w-full px-3 py-2 border rounded-lg outline-none bg-white text-center font-bold text-gray-800 shadow-sm focus:ring-purple-600" required>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 mt-2 border-t">
+                    <button type="button" onclick="closeModal('modal-jadwal-khusus')" class="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-bold transition">Batal</button>
+                    <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold transition shadow">Simpan Jadwal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- CUSTOM POPUP ANALOG CLOCK PICKER (DRAG & DROP, 24 HOUR) -->
     <div id="analog-time-picker" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-[310px] overflow-hidden picker-scale-in border border-green-100 select-none">
@@ -1359,6 +1445,7 @@
             liburTambahan: [
                 { id: 'L-1000000000001', tanggal: '2026-08-17', keterangan: 'HUT Kemerdekaan RI' }
             ],
+            jadwalKhusus: [], // TAMBAHAN STATE JADWAL KHUSUS
             absensi: []
         };
         const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -1392,6 +1479,9 @@
             }
             if (!appState.liburTambahan) {
                 appState.liburTambahan = defaultState.liburTambahan;
+            }
+            if (!appState.jadwalKhusus) {
+                appState.jadwalKhusus = [];
             }
         }
 
@@ -1931,6 +2021,7 @@
             document.getElementById('form-guru').addEventListener('submit', handleGuru);
             document.getElementById('form-jadwal-sekolah').addEventListener('submit', saveJadwalSekolah);
             document.getElementById('form-libur').addEventListener('submit', handleLibur);
+            document.getElementById('form-jadwal-khusus').addEventListener('submit', handleJadwalKhusus);
         });
 
         function buildGuruLoginForm() {
@@ -2167,7 +2258,7 @@
 
             if(pageId === 'dashboard') renderDashboard();
             if(pageId === 'guru') renderTableGuru();
-            if(pageId === 'jadwal') renderTableJadwal();
+            if(pageId === 'jadwal') { renderTableJadwal(); renderTableJadwalKhusus(); } // DIPERBARUI
             if(pageId === 'libur') renderTableLibur();
             if(pageId === 'absen') renderTableAbsenBulanan(); // <-- Render Timesheet Otomatis
             if(pageId === 'lokasi') renderTableLokasi();
@@ -2202,6 +2293,16 @@
             if (pengaturanHari && pengaturanHari.aktif === false) return true;
             
             return false;
+        }
+
+        /* --- FUNGSI HELPER CEK JADWAL KHUSUS --- */
+        function getJadwalKhusus(dateStr, jabatan = 'tetap') {
+            if (!appState.jadwalKhusus) return null;
+            return appState.jadwalKhusus.find(j => {
+                const isDateMatch = dateStr >= j.tanggalMulai && dateStr <= j.tanggalAkhir;
+                const isTargetMatch = !j.target || j.target === 'semua' || j.target === jabatan;
+                return isDateMatch && isTargetMatch;
+            });
         }
 
         /* --- DASHBOARD & ABSENSI LANGSUNG (GURU) --- */
@@ -2642,6 +2743,116 @@
         function renderTableJadwal() {
             renderJadwalRows(appState.jadwal, 'table-jadwal-tetap', 'tetap');
             renderJadwalRows(appState.jadwalHonorer, 'table-jadwal-honorer', 'honorer');
+        }
+
+        /* --- CRUD JADWAL KHUSUS --- */
+        function renderTableJadwalKhusus() {
+            const tbody = document.getElementById('table-jadwal-khusus-body'); 
+            tbody.innerHTML = '';
+            
+            if(!appState.jadwalKhusus || appState.jadwalKhusus.length === 0) {
+                return tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400 font-medium">Belum ada pengaturan jadwal khusus.</td></tr>`;
+            }
+            
+            appState.jadwalKhusus.sort((a,b) => new Date(a.tanggalMulai) - new Date(b.tanggalMulai)).forEach((jk, i) => {
+                const dOpts = { day: 'numeric', month: 'short', year: 'numeric' };
+                const tglMulaiFormat = new Date(jk.tanggalMulai).toLocaleDateString('id-ID', dOpts);
+                const tglAkhirFormat = new Date(jk.tanggalAkhir).toLocaleDateString('id-ID', dOpts);
+                
+                let targetBadge = '<span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px] ml-2">Semua Guru</span>';
+                if (jk.target === 'tetap') targetBadge = '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[10px] ml-2">TPG</span>';
+                if (jk.target === 'honorer') targetBadge = '<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] ml-2">Honorer</span>';
+
+                tbody.innerHTML += `
+                    <tr class="md:hover:bg-purple-50/40 border-b border-gray-100 transition" id="row-jk-${i}">
+                        <td class="px-6 py-4 font-bold text-gray-800 mobile-primary" data-label="Keterangan">
+                            ${jk.keterangan} ${targetBadge}
+                            <button type="button" class="mobile-toggle text-2xl" onclick="toggleMobileRow('row-jk-${i}', this)"><i class="bi bi-plus-circle-fill text-green-600"></i></button>
+                        </td>
+                        <td class="px-6 py-4 font-mono text-xs font-bold text-purple-700 text-center" data-label="Rentang Tanggal">
+                            ${tglMulaiFormat} <span class="text-gray-400 font-normal mx-1 text-[10px]">s/d</span> ${tglAkhirFormat}
+                        </td>
+                        <td class="px-6 py-4 font-bold text-green-700 text-center" data-label="Jam Masuk">${jk.jamMasuk}</td>
+                        <td class="px-6 py-4 font-bold text-red-700 text-center" data-label="Jam Pulang">${jk.jamPulang}</td>
+                        <td class="px-6 py-4 font-bold text-gray-600 text-center" data-label="Toleransi">${jk.toleransi} Mnt</td>
+                        <td class="px-6 py-4 text-center" data-label="Aksi">
+                            <button onclick="editJadwalKhusus('${jk.id}')" class="text-blue-600 hover:text-blue-800 md:mr-3 mr-4 transition"><i class="bi bi-pencil-square text-lg"></i></button>
+                            <button onclick="delJadwalKhusus('${jk.id}')" class="text-red-600 hover:text-red-800 transition"><i class="bi bi-trash text-lg"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openModalJadwalKhusus() {
+            document.getElementById('form-jadwal-khusus').reset();
+            document.getElementById('jk-id').value = '';
+            document.getElementById('jk-target').value = 'semua';
+            document.getElementById('jk-jam-masuk').value = '07:30';
+            document.getElementById('jk-jam-pulang').value = '12:00';
+            document.getElementById('jk-toleransi').value = '15';
+            document.getElementById('modal-jk-title').textContent = 'Tambah Jadwal Khusus';
+            openModal('modal-jadwal-khusus');
+        }
+
+        function editJadwalKhusus(id) {
+            const jk = appState.jadwalKhusus.find(x => x.id === id);
+            if(jk) {
+                document.getElementById('modal-jk-title').textContent = 'Edit Jadwal Khusus';
+                document.getElementById('jk-id').value = jk.id;
+                document.getElementById('jk-ket').value = jk.keterangan;
+                document.getElementById('jk-target').value = jk.target || 'semua';
+                document.getElementById('jk-tanggal-mulai').value = jk.tanggalMulai;
+                document.getElementById('jk-tanggal-akhir').value = jk.tanggalAkhir;
+                document.getElementById('jk-jam-masuk').value = jk.jamMasuk;
+                document.getElementById('jk-jam-pulang').value = jk.jamPulang;
+                document.getElementById('jk-toleransi').value = jk.toleransi;
+                openModal('modal-jadwal-khusus');
+            }
+        }
+
+        function handleJadwalKhusus(e) {
+            e.preventDefault();
+            const id = document.getElementById('jk-id').value;
+            const tMulai = document.getElementById('jk-tanggal-mulai').value;
+            const tAkhir = document.getElementById('jk-tanggal-akhir').value;
+            
+            if (tAkhir < tMulai) {
+                return showToast('Tanggal akhir tidak boleh mendahului tanggal mulai!', 'error');
+            }
+
+            const d = {
+                id: id || 'JK-' + Date.now(),
+                keterangan: document.getElementById('jk-ket').value,
+                target: document.getElementById('jk-target').value,
+                tanggalMulai: tMulai,
+                tanggalAkhir: tAkhir,
+                jamMasuk: document.getElementById('jk-jam-masuk').value,
+                jamPulang: document.getElementById('jk-jam-pulang').value,
+                toleransi: parseInt(document.getElementById('jk-toleransi').value) || 0
+            };
+
+            if(id) {
+                appState.jadwalKhusus[appState.jadwalKhusus.findIndex(x=>x.id===id)] = d;
+                showToast('Jadwal khusus diperbarui');
+            } else {
+                appState.jadwalKhusus.push(d);
+                showToast('Jadwal khusus berhasil ditambahkan');
+            }
+            saveState(); closeModal('modal-jadwal-khusus'); renderTableJadwalKhusus();
+        }
+
+        function delJadwalKhusus(id) {
+            openCustomModal({
+                title: 'Hapus Jadwal Khusus?',
+                message: 'Jadwal khusus ini akan dihapus secara permanen.',
+                type: 'danger',
+                confirmText: 'Ya, Hapus',
+                onConfirm: () => {
+                    appState.jadwalKhusus = appState.jadwalKhusus.filter(x=>x.id!==id);
+                    saveState(); renderTableJadwalKhusus(); showToast('Jadwal khusus dihapus', 'info');
+                }
+            });
         }
 
         function renderJadwalRows(dataArr, tbodyId, type) {
@@ -3214,6 +3425,13 @@
                     if (jd && jd.aktif) {
                         jamMasuk = jd.jamMasuk;
                         jamPulang = jd.jamPulang;
+                        
+                        // TIMPA DENGAN JADWAL KHUSUS JIKA ADA
+                        const jk = getJadwalKhusus(dateStr, guru.jabatan);
+                        if(jk) {
+                            jamMasuk = jk.jamMasuk;
+                            jamPulang = jk.jamPulang;
+                        }
                     }
                 }
 
@@ -3442,7 +3660,15 @@
                     
                     if(!isOff) {
                         const jd = tJadwal.find(x => x.hari === nHari);
-                        if(jd && jd.aktif) { jm = jd.jamMasuk; jp = jd.jamPulang; }
+                        if(jd && jd.aktif) { 
+                            jm = jd.jamMasuk; jp = jd.jamPulang; 
+                            
+                            // TIMPA DENGAN JADWAL KHUSUS JIKA ADA
+                            const jk = getJadwalKhusus(dateStr, g.jabatan);
+                            if(jk) {
+                                jm = jk.jamMasuk; jp = jk.jamPulang;
+                            }
+                        }
                     }
 
                     wsData.push([dateStr, nHari, g.kode || g.id, g.nama, st, jm, jp, ket]);
@@ -3761,9 +3987,16 @@
                             ket = l ? l.keterangan : 'Hari Libur Sekolah';
                         }
                         
-                        let dMasuk = jadwalMasuk || '07:00';
-                        let dPulang = jadwalPulang || '13:15';
-                        if(isOff) { dMasuk = ''; dPulang = ''; } 
+                        // TERAPKAN JADWAL KHUSUS KE VARIABEL LAPORAN JIKA ADA
+                        const jk = getJadwalKhusus(dateStr, g.jabatan);
+                        if (jd && jd.aktif && jk) {
+                            jadwalMasuk = jk.jamMasuk;
+                            jadwalPulang = jk.jamPulang;
+                            toleransi = jk.toleransi !== undefined ? jk.toleransi : toleransi;
+                        }
+
+                        let dMasuk = jadwalMasuk || (jd && jd.aktif ? '07:00' : '');
+                        let dPulang = jadwalPulang || (jd && jd.aktif ? '13:15' : '');
 
                         if(st === 'Hadir') {
                             ter = calcTerlambat(sm, dMasuk, toleransi);
