@@ -39,7 +39,7 @@
         
         /* Print Styles */
         @media print {
-            @page { width: 210mm; height: 297mm; margin: 5mm; }
+            @page { width: 210mm; height: 310mm; margin: 5mm; }
             html, body { font-family: "Arial Narrow", "Arial", sans-serif; background-color: #ffffff !important; background: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; min-height: auto !important; height: auto !important; }
             
             /* Sembunyikan SEMUA elemen UI yang tidak perlu agar tidak memakan ruang kosong */
@@ -4123,14 +4123,14 @@
                             </tr>
                         </table>
 						
-						<table class="w-full text-[12px] mt-2 text-left border-none leading-tight" style="line-height:1.2em">
+						<table class="w-full text-[12px] mt-7 text-left border-none leading-tight" style="line-height:1.2em">
                             <tr>
                                 <td width="70%" style="padding-left:118px;">
 									<div>
 										<p>Mengetahui,</p>
 										<p>Kepala Madrasah</p>
 									</div>
-									<div class="mt-12">
+									<div class="mt-16">
 										<p class="font-bold underline leading-tight">${appState.sekolah.kepsek}</p>
 										<p class="font-bold leading-tight">NIP. ${appState.sekolah.nipkepsek || '-'}</p>
 									</div>
@@ -4140,7 +4140,7 @@
 										<p>${appState.sekolah.kelurahan ? (appState.sekolah.kelurahan.charAt(0).toUpperCase() + appState.sekolah.kelurahan.slice(1)) : '........................'}, ${daysInMonth} ${nBulan} ${y}</p>
 										<p>Nama Guru</p>
 									</div>
-									<div class="mt-12">
+									<div class="mt-16">
 										<p class="font-bold underline leading-tight">${g.nama}</p>
 										<p class="font-bold leading-tight">NIP. ${g.nip || '-'}</p>
 									</div>
@@ -4153,7 +4153,7 @@
 									<p>Pengawas Madrasah</p>
 									<p>Kec. ${appState.sekolah.kecamatan}</p>
 								</div>
-								<div class="mt-12">
+								<div class="mt-16">
 									<p class="font-bold underline leading-tight">${appState.sekolah.pengawas || '_________________________'}</p>
 									<p class="font-bold leading-tight">NIP. ${appState.sekolah.nippengawas || '___________________'}</p>
 								</div>
