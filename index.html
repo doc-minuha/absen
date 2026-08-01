@@ -3609,6 +3609,15 @@
             }
             const ket = document.getElementById(`ket-${rowIdx}`).value;
             
+            // Ambil data lokasi lama jika ada agar tidak ter-reset
+            const ix = appState.absensi.findIndex(a => a.tanggal === dateStr && a.guruId === gid);
+            let existingLokasiMasuk = '';
+            let existingLokasiPulang = '';
+            if (ix >= 0) {
+                existingLokasiMasuk = appState.absensi[ix].lokasiMasuk || '';
+                existingLokasiPulang = appState.absensi[ix].lokasiPulang || '';
+            }
+
             const d = {
                 id: 'A-' + dateStr + '-' + gid, 
                 tanggal: dateStr, 
@@ -3616,10 +3625,11 @@
                 status: status, 
                 jamMasuk: jamMasuk,
                 jamPulang: jamPulang,
+                lokasiMasuk: existingLokasiMasuk,
+                lokasiPulang: existingLokasiPulang,
                 keterangan: ket || '-'
             };
             
-            const ix = appState.absensi.findIndex(a => a.tanggal === d.tanggal && a.guruId === d.guruId);
             if(ix >= 0) appState.absensi[ix] = d; 
             else appState.absensi.push(d); 
         }
@@ -3741,15 +3751,25 @@
                                     if(parts.length === 3) tgl = `${parts[2].length===2?'20'+parts[2]:parts[2]}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}`;
                                 }
 
+                                // Ambil lokasi eksisting (jika ada) saat ditimpa via excel
+                                const ix = appState.absensi.findIndex(a => a.tanggal === tgl && a.guruId === gId);
+                                let existingLokasiMasuk = '';
+                                let existingLokasiPulang = '';
+                                if(ix >= 0) {
+                                    existingLokasiMasuk = appState.absensi[ix].lokasiMasuk || '';
+                                    existingLokasiPulang = appState.absensi[ix].lokasiPulang || '';
+                                }
+
                                 const dObj = {
                                     id: 'A-' + tgl + '-' + gId, 
                                     tanggal: tgl, guruId: gId, status: st, 
                                     jamMasuk: st==='Hadir' ? (jm||'-') : '-',
                                     jamPulang: st==='Hadir' ? (jp||'-') : '-',
+                                    lokasiMasuk: existingLokasiMasuk,
+                                    lokasiPulang: existingLokasiPulang,
                                     keterangan: ket || '-'
                                 };
                                 
-                                const ix = appState.absensi.findIndex(a => a.tanggal === tgl && a.guruId === gId);
                                 if(ix >= 0) appState.absensi[ix] = dObj;
                                 else appState.absensi.push(dObj);
                                 count++;
